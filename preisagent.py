@@ -2,6 +2,8 @@
 
 import sys
 import argparse
+import requests
+import json
 from urllib.request import urlopen
 from re import findall
 from smtplib import SMTP
@@ -11,6 +13,10 @@ from pathlib import Path
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--debug", action="store_true", help="enable debug output")
 parser.add_argument("-m", "--mail", help="send email to address")
+parser.add_argument("-t", "--telegram", 
+	help="send telegram message to bot-id chat-id",
+	nargs=2,
+	metavar=("Bot-ID", "Chat-ID") )
 args = parser.parse_args()
 
 mailtxt="""\
@@ -75,11 +81,12 @@ for art in artikel:
 		with open(filename,"w") as f:
 			f.write(str(price) + "\n")
 	
+		# send email
 		if args.mail:
 			if args.debug:
 				print("Sending eMail")
 			msg = EmailMessage()
-			msg.set_content(mailtxt % (art[0].strip(), oldprice, price, art[1]))
+			msg.set_content(mailtxt % (name, oldprice, price, url))
 			msg['Subject'] = "Neuer Preis für %s: %.2f" % (name, price)
 			msg['From'] = args.mail
 			msg['To'] = args.mail
@@ -88,7 +95,17 @@ for art in artikel:
 			s.send_message(msg)
 			s.quit()
 
+		# send telegram message
+		if args.telegram:
+			if args.debug:
+				print("Sending Telegram Message")
+				
+			params = {"chat_id":args.telegram[1], "text":f"Neuer Preis für {name}: {price}"}
+			message = requests.post(f"https://api.telegram.org/bot{args.telegram[0]}/sendMessage", params=params)
 
+			if args.debug:
+				print(message)
+		
 
 
 # vim: set ts=4:
