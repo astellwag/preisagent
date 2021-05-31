@@ -9,7 +9,8 @@ Checks prices on Thomann's (german) website and can send an email whenever a pri
 optional arguments:
   -h, --help            show this help message and exit
   -d, --debug           enable debug output
-  -m MAIL, --mail MAIL  send email to address```
+  -m MAIL, --mail MAIL  send email to address
+```
 
 ## Configuration
 
@@ -20,7 +21,8 @@ User readable item name, item url relative to https://www.thomann.de/de/
 e.g.
 
 ```Boss Katana Artist, boss_katana_artist_mkii
-Laney Cub-Supertop, laney_cub_supertop```
+Laney Cub-Supertop, laney_cub_supertop
+```
 
 ## Sending mail
 
