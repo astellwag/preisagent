@@ -27,7 +27,7 @@ der Preis für %s ist gefallen.
 Alter Preis: %d
 Neuer Preis: %d
 
-Link zum Artikel: https://www.thomann.de/de/%s
+Link zum Artikel: %s
 
 Cheers,
 Dein Thomann-Preisagent
