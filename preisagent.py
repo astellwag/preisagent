@@ -30,6 +30,7 @@ Dein Thomann-Preisagent
 home = str(Path.home())
 confdir = home + "/.preisagent/"
 listfile = confdir + "artikel.txt"
+baseurl = "https://www.thomann.de/de/"
 
 # read list of articles to watch for
 artikel=[]
@@ -45,10 +46,16 @@ for line in lines:
 
 # check every article
 for art in artikel:
+	name = str(art[0].strip())
+	relurl = str(art[1].strip())
+
 	if args.debug:
-		print("Checking " + art[0].strip())
-	filename = confdir + art[1].strip()
-	url = "https://www.thomann.de/de/" + art[1].strip() + ".htm"
+		print("Checking " + name)
+	filename = confdir + relurl
+	url = baseurl + relurl + ".htm"
+
+	if args.debug:
+		print(url)
 
 	try:
 		with open(filename) as f:
@@ -73,7 +80,7 @@ for art in artikel:
 				print("Sending eMail")
 			msg = EmailMessage()
 			msg.set_content(mailtxt % (art[0].strip(), oldprice, price, art[1]))
-			msg['Subject'] = "Neuer Preis für %s" % art[0]
+			msg['Subject'] = "Neuer Preis für %s: %.2f" % (name, price)
 			msg['From'] = args.mail
 			msg['To'] = args.mail
 	
