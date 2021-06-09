@@ -17,16 +17,7 @@ optional arguments:
 
 ## Configuration
 
-The program requires a writeable directory "~/.preisagent" and a file "artikel.txt" inside. The format of the file is one item per line as follows:
-
-User readable item name, item url relative to https://www.thomann.de/de/
-
-e.g.
-
-```
-Boss Katana Artist, boss_katana_artist_mkii
-Laney Cub-Supertop, laney_cub_supertop
-```
+The program requires a writeable directory "~/.preisagent" and a file "preisagent.ini" inside. 
 
 ## Sending mail
 
