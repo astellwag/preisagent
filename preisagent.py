@@ -83,7 +83,7 @@ for art in articles:
 		print("=======================================")
 
 	# alten Preis lesen
-	filename = confdir + a['name'].lower().replace(' ', '_')
+	filename = confdir + re.sub(r"[/ ]", "_", a['name']).lower()
 	if args.debug:
 		print(f"Trying to open {filename}")
 	try:
