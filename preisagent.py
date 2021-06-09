@@ -4,8 +4,8 @@ import sys
 import argparse
 import requests
 import json
+import re
 from urllib.request import urlopen
-from re import findall
 from smtplib import SMTP
 from email.message import EmailMessage
 from pathlib import Path
@@ -30,64 +30,115 @@ Neuer Preis: %d
 Link zum Artikel: %s
 
 Cheers,
-Dein Thomann-Preisagent
+Dein Preisagent
 """
 
 home = str(Path.home())
-confdir = home + "/.preisagent/"
-listfile = confdir + "artikel.txt"
-baseurl = "https://www.thomann.de/de/"
+confdir = home + '/.preisagent/'
+listfile = confdir + 'preisagent.ini'
 
-# read list of articles to watch for
-artikel=[]
+mode = "none"
+shops = {}
+articles = {}
 
-try:
-	with open(listfile) as a:
-		lines = a.readlines()
-except IOError:
-		sys.exit("Keine Artikelliste in %s gefunden" % listfile)
+# read configfile
+with open(listfile) as c:
+	lines = c.readlines()
 
-for line in lines:
-	artikel.append(line.split(","))
+for l in lines:
+	line = l.strip()
+	if line == "[shops]":
+		mode = "shops"
+		regex = r"(\w+)_(\w+)\s+=\s+(.*)"
+		continue
+	elif re.match("\[(.*)\]", line):
+		match = re.match("\[(.*)\]", line)
+		name = match.group(1)
+		mode = match.group(1).lower().replace(" ","_")
+		regex = r"url_(\w+)\s+=\s+(.*)"
+		continue
+	
+	if mode == "none": continue
+	
+	elif mode == "shops":
+		if re.search(regex, line):
+			match = re.search(regex, line)
+			key = match.group(2)
+			if not key in shops: shops[key] = {}
+			shops[key][match.group(1)] = match.group(3)
 
-# check every article
-for art in artikel:
-	name = str(art[0].strip())
-	relurl = str(art[1].strip())
+	elif re.search(regex, line):
+		match = re.search(regex, line)
+		if not mode in articles:
+			articles[mode] = {}
+			articles[mode]['name'] = name
+			articles[mode]['shops'] = {}
+		articles[mode]['shops'][match.group(1)] = match.group(2)
 
+
+for art in articles:
+	a = articles[art]
 	if args.debug:
-		print("Checking " + name)
-	filename = confdir + relurl
-	url = baseurl + relurl + ".htm"
+		print(a['name'])
+		print("=======================================")
 
+	# alten Preis lesen
+	filename = confdir + a['name'].lower().replace(' ', '_')
 	if args.debug:
-		print(url)
-
+		print(f"Trying to open {filename}")
 	try:
 		with open(filename) as f:
-			oldprice=(float(f.readlines()[0]))
+			preisline = f.readlines()[0].strip().split(':')
+			if args.debug: print(preisline)
+			oldshop = preisline[0]
+			oldpreis = float(preisline[1])
 	except IOError:
-			oldprice=99999999999.9
+			oldshop = ''
+			oldpreis = 99999999999.9
 
-
-	html = urlopen(url).read().decode("UTF-8")
-	r1 = findall(r"<meta itemprop=\"price\" content=\"\d+\.\d+\">", html)[0]
-	price = float(findall(r"\d+\.\d+", r1)[0])
+	lshop = oldshop
+	lpreis = oldpreis
 	if args.debug:
-		print("Alter Preis: %.2f\nNeuer Preis: %.2f" % (oldprice, price))
-	if(price < oldprice):
+		print(lshop + ': ' + str(lpreis))
+
+	for sho in a['shops']:
+		s = shops[sho]
+		url = s['baseurl'] + a['shops'][sho] + s['append']
+		if args.debug:
+			print(url)
+			print(s['matchre'])
+		html = urlopen(url).read().decode("UTF-8")
+		if re.search(s['matchre'], html):
+			if args.debug:
+				print("match")
+				print(re.search(s['matchre'], html).group(1))
+			p = re.search(s['matchre'], html).group(1)
+			if p.find(","):
+				preis = float(p.replace(",","."))
+			else:
+				preis = float(p)
+			
+			if preis < lpreis:
+				lshop = s['name']
+				lpreis = preis
+
+	if args.debug:			
+		print( a['name'] + " ist bei " + lshop + " am günstigsten: " + str(lpreis) + "€")
+
+	# neuen günstigsten Preis speichern
+	if lpreis < oldpreis or lshop != oldshop:
 		if args.debug:
 			print("Storing new price")
-		with open(filename,"w") as f:
-			f.write(str(price) + "\n")
-	
+		with open(filename, "w") as f:
+			f.write(lshop + ':' + str(lpreis) + "\n")
+		
 		# send email
 		if args.mail:
 			if args.debug:
 				print("Sending eMail")
 			msg = EmailMessage()
-			msg.set_content(mailtxt % (name, oldprice, price, url))
-			msg['Subject'] = "Neuer Preis für %s: %.2f" % (name, price)
+			msg.set_content(mailtxt % (a['name'], oldpreis, lpreis, url))
+			msg['Subject'] = "Neuer Preis für %s: %.2f" % (a['name'], lpreis)
 			msg['From'] = args.mail
 			msg['To'] = args.mail
 	
@@ -100,7 +151,7 @@ for art in artikel:
 			if args.debug:
 				print("Sending Telegram Message")
 				
-			params = {"chat_id":args.telegram[1], "text":f"Neuer Preis für {name}: {price}"}
+			params = {"chat_id":args.telegram[1], "text":f"Neuer Preis für {a['name']}: {lpreis}€\n{url}"}
 			message = requests.post(f"https://api.telegram.org/bot{args.telegram[0]}/sendMessage", params=params)
 
 			if args.debug:
