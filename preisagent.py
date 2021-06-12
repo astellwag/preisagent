@@ -5,6 +5,7 @@ import argparse
 import requests
 import json
 import re
+from datetime import datetime
 from urllib.request import urlopen
 from smtplib import SMTP
 from email.message import EmailMessage
@@ -130,7 +131,7 @@ for art in articles:
 		if args.debug:
 			print("Storing new price")
 		with open(filename, "w") as f:
-			f.write(lshop + ':' + str(lpreis) + "\n")
+			f.write(lshop + ':' + str(lpreis) + ":" + datetime.now().strftime("%Y-%m-%d") + "\n")
 		
 		# send email
 		if args.mail:
