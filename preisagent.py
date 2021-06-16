@@ -95,7 +95,7 @@ for art in articles:
 			oldpreis = float(preisline[1])
 	except IOError:
 			oldshop = ''
-			oldpreis = 99999999999.9
+			oldpreis = 999999.9
 
 	lshop = oldshop
 	lpreis = oldpreis
@@ -126,38 +126,39 @@ for art in articles:
 	if args.debug:			
 		print( a['name'] + " ist bei " + lshop + " am günstigsten: " + str(lpreis) + "€")
 
-	# neuen günstigsten Preis speichern
-	if lpreis < oldpreis or lshop != oldshop:
+	# neuen Preis speichern
+	if lpreis != oldpreis or lshop != oldshop:
 		if args.debug:
 			print("Storing new price")
 		with open(filename, "w") as f:
 			f.write(lshop + ':' + str(lpreis) + ":" + datetime.now().strftime("%Y-%m-%d") + "\n")
 		
-		# send email
-		if args.mail:
-			if args.debug:
-				print("Sending eMail")
-			msg = EmailMessage()
-			msg.set_content(mailtxt % (a['name'], oldpreis, lpreis, url))
-			msg['Subject'] = "Neuer Preis für %s: %.2f" % (a['name'], lpreis)
-			msg['From'] = args.mail
-			msg['To'] = args.mail
-	
-			s = SMTP('localhost')
-			s.send_message(msg)
-			s.quit()
-
-		# send telegram message
-		if args.telegram:
-			if args.debug:
-				print("Sending Telegram Message")
-				
-			params = {"chat_id":args.telegram[1], "text":f"Neuer Preis für {a['name']}: {lpreis}€\n{url}"}
-			message = requests.post(f"https://api.telegram.org/bot{args.telegram[0]}/sendMessage", params=params)
-
-			if args.debug:
-				print(message)
+		# wenn neuer Preis < alter Preis -> Benachrichtigung
+		if lpreis < oldpreis:
+			# send email
+			if args.mail:
+				if args.debug:
+					print("Sending eMail")
+				msg = EmailMessage()
+				msg.set_content(mailtxt % (a['name'], oldpreis, lpreis, url))
+				msg['Subject'] = "Neuer Preis für %s: %.2f" % (a['name'], lpreis)
+				msg['From'] = args.mail
+				msg['To'] = args.mail
 		
+				s = SMTP('localhost')
+				s.send_message(msg)
+				s.quit()
+	
+			# send telegram message
+			if args.telegram:
+				if args.debug:
+					print("Sending Telegram Message")
+					
+				params = {"chat_id":args.telegram[1], "text":f"Neuer Preis für {a['name']}: {lpreis}€\n{url}"}
+				message = requests.post(f"https://api.telegram.org/bot{args.telegram[0]}/sendMessage", params=params)
 
+				if args.debug:
+					print(message)
+		
 
 # vim: set ts=4:
