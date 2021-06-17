@@ -108,7 +108,15 @@ for art in articles:
 		if args.debug:
 			print(url)
 			print(s['matchre'])
-		html = urlopen(url).read().decode("UTF-8")
+		try:
+			html = urlopen(url).read().decode("UTF-8")
+		except URLError as e:
+			if hassattr(e, 'reason'):
+				print(f"URL {url} unreachable: {e.reason}")
+			elif hasattr(e, 'code'):
+				print(f"HTTP request for {url} failed: {e.code}")
+			continue
+
 		if re.search(s['matchre'], html):
 			if args.debug:
 				print("match")
