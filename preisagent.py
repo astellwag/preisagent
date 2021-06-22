@@ -12,13 +12,16 @@ from email.message import EmailMessage
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-d", "--debug", action="store_true", help="enable debug output")
+parser.add_argument("-v", "--verbose", action="store_true", help="enable verbose output")
+parser.add_argument("-d", "--debug", action="store_true", help="enable detailed debug output")
 parser.add_argument("-m", "--mail", help="send email to address")
 parser.add_argument("-t", "--telegram", 
 	help="send telegram message to bot-id chat-id",
 	nargs=2,
 	metavar=("Bot-ID", "Chat-ID") )
 args = parser.parse_args()
+
+if args.debug: args.verbose = True
 
 mailtxt="""\
 Hi,
@@ -43,6 +46,8 @@ shops = {}
 articles = {}
 
 # read configfile
+if args.debug: print(f"Reading config file: {listfile}")
+
 with open(listfile) as c:
 	lines = c.readlines()
 
@@ -79,7 +84,7 @@ for l in lines:
 
 for art in articles:
 	a = articles[art]
-	if args.debug:
+	if args.verbose:
 		print(a['name'])
 		print("=======================================")
 
@@ -127,12 +132,16 @@ for art in articles:
 			else:
 				preis = float(p)
 			
+			if args.verbose:
+				print(f"Preis bei {s['name']}: {preis}€")
+
 			if preis < lpreis:
 				lshop = s['name']
 				lpreis = preis
 
 	if args.debug:			
 		print( a['name'] + " ist bei " + lshop + " am günstigsten: " + str(lpreis) + "€")
+	if args.verbose: print()
 
 	# neuen Preis speichern
 	if lpreis != oldpreis or lshop != oldshop:
