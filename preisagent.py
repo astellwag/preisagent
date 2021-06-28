@@ -7,6 +7,7 @@ import json
 import re
 from datetime import datetime
 from urllib.request import urlopen
+from urllib.error import URLError, HTTPError
 from smtplib import SMTP
 from email.message import EmailMessage
 from pathlib import Path
@@ -116,7 +117,7 @@ for art in articles:
 		try:
 			html = urlopen(url).read().decode("UTF-8")
 		except URLError as e:
-			if hassattr(e, 'reason'):
+			if hasattr(e, 'reason'):
 				print(f"URL {url} unreachable: {e.reason}")
 			elif hasattr(e, 'code'):
 				print(f"HTTP request for {url} failed: {e.code}")
