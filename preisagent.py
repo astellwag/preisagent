@@ -103,6 +103,7 @@ for art in articles:
 			oldshop = ''
 			oldpreis = 999999.9
 
+	lurl = ''
 	lshop = oldshop
 	lpreis = oldpreis
 	if args.debug:
@@ -139,6 +140,7 @@ for art in articles:
 			if preis < lpreis:
 				lshop = s['name']
 				lpreis = preis
+				lurl = url
 
 	if args.debug:			
 		print( a['name'] + " ist bei " + lshop + " am günstigsten: " + str(lpreis) + "€")
@@ -158,7 +160,7 @@ for art in articles:
 				if args.debug:
 					print("Sending eMail")
 				msg = EmailMessage()
-				msg.set_content(mailtxt % (a['name'], oldpreis, lpreis, url))
+				msg.set_content(mailtxt % (a['name'], oldpreis, lpreis, lurl))
 				msg['Subject'] = "Neuer Preis für %s: %.2f" % (a['name'], lpreis)
 				msg['From'] = args.mail
 				msg['To'] = args.mail
@@ -172,7 +174,7 @@ for art in articles:
 				if args.debug:
 					print("Sending Telegram Message")
 					
-				params = {"chat_id":args.telegram[1], "text":f"Neuer Preis für {a['name']}: {lpreis}€\n{url}"}
+				params = {"chat_id":args.telegram[1], "text":f"Neuer Preis für {a['name']}: {lpreis}€\n{lurl}"}
 				message = requests.post(f"https://api.telegram.org/bot{args.telegram[0]}/sendMessage", params=params)
 
 				if args.debug:
