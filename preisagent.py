@@ -54,10 +54,14 @@ with open(listfile) as c:
 
 for l in lines:
 	line = l.strip()
+
+	if re.match("^#.*", line): continue
+
 	if line == "[shops]":
 		mode = "shops"
 		regex = r"(\w+)_(\w+)\s+=\s+(.*)"
 		continue
+
 	elif re.match("\[(.*)\]", line):
 		match = re.match("\[(.*)\]", line)
 		name = match.group(1)
