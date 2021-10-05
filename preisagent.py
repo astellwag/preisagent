@@ -103,13 +103,17 @@ for art in articles:
 			if args.debug: print(preisline)
 			oldshop = preisline[0]
 			oldpreis = float(preisline[1])
+			if args.debug:
+				print(f"Alter Preis: {oldpreis}€ bei {oldshop}")
 	except IOError:
 			oldshop = ''
 			oldpreis = 999999.9
+			if args.debug: print("Alter Preis: ---")
 
 	lurl = ''
 	lshop = oldshop
-	lpreis = oldpreis
+	lpreis = 999999.9
+
 	if args.debug:
 		print(lshop + ': ' + str(lpreis))
 
