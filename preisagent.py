@@ -11,15 +11,20 @@ from urllib.error import URLError, HTTPError
 from smtplib import SMTP
 from email.message import EmailMessage
 from pathlib import Path
+from subprocess import Popen
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbose", action="store_true", help="enable verbose output")
 parser.add_argument("-d", "--debug", action="store_true", help="enable detailed debug output")
 parser.add_argument("-m", "--mail", help="send email to address")
 parser.add_argument("-t", "--telegram", 
-	help="send telegram message to bot-id chat-id",
+	help="send telegram message to <Bot-ID> <Chat-ID>",
 	nargs=2,
 	metavar=("Bot-ID", "Chat-ID") )
+parser.add_argument("-s", "--signal",
+	help="send signal message from <Account> to <Number>",
+	nargs=2,
+	metavar=("Account", "Number") )
 args = parser.parse_args()
 
 if args.debug: args.verbose = True
@@ -187,6 +192,19 @@ for art in articles:
 
 				if args.debug:
 					print(message)
+
+			# send signal message
+			if args.signal:
+				if args.debug:
+					print("Sending Signal Message")
+
+				p = Popen(["signal-cli", 
+					"-a", args.signal[0],
+					"--dbus-system", "send",
+					"-m", f"Neuer Preis für {a['name']}: {lpreis}€\n{lurl}",
+					args.signal[1]])
 		
+				if args.debug:
+					print(p)
 
 # vim: set ts=4:
