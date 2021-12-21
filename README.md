@@ -31,4 +31,4 @@ When invoked with parameter -t BOT CHAT, it will send a telegram message using t
 
 ## Signal suppoort
 
-When invoked with parameter -s Group-ID, it will send a signal message to group Group_ID. This requires <https://github.com/AsamK/signal-cli> configured and running as a system-dbus service. For now, this uses the first accound configured with signal-cli.
+When invoked with parameter -s Group-ID, it will send a signal message to group Group_ID. This requires <https://github.com/AsamK/signal-cli> configured and running as a system-dbus service. For now, this uses the first account configured with signal-cli.
