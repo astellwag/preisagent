@@ -11,7 +11,8 @@ from urllib.error import URLError, HTTPError
 from smtplib import SMTP
 from email.message import EmailMessage
 from pathlib import Path
-from subprocess import Popen
+from base64 import b64decode
+from pydbus import SystemBus
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbose", action="store_true", help="enable verbose output")
@@ -22,9 +23,9 @@ parser.add_argument("-t", "--telegram",
 	nargs=2,
 	metavar=("Bot-ID", "Chat-ID") )
 parser.add_argument("-s", "--signal",
-	help="send signal message from <Account> to <Group-ID>",
-	nargs=2,
-	metavar=("Account", "Group-ID") )
+	help="send signal message to <Group-ID>",
+	nargs=1,
+	metavar=("Group-ID") )
 args = parser.parse_args()
 
 if args.debug: args.verbose = True
@@ -198,11 +199,17 @@ for art in articles:
 				if args.debug:
 					print("Sending Signal Message")
 
-				p = Popen(["signal-cli", 
-					"-a", args.signal[0],
-					"--dbus-system", "send",
-					"-m", f"Neuer Preis für {a['name']}: {lpreis}€\n{lurl}",
-					"-g", args.signal[1]])
+				group = args.signal[0]
+				sendgroup = []
+				for i in b64decode(group.replace("_","/")):
+					sendgroup.append(i)
+
+				bus = SystemBus()
+				signal = bus.get('org.asamk.Signal')
+				account = signal.listAccounts()[0]
+
+				signal2 = bus.get(bus_name='org.asamk.Signal',object_path=account)
+				signal2.sendGroupMessage(f"Neuer Preis für {a['name']}: {lpreis}€\n{lurl}", [], sendgroup)
 		
 				if args.debug:
 					print(p)
