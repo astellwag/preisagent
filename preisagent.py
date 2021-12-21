@@ -22,9 +22,9 @@ parser.add_argument("-t", "--telegram",
 	nargs=2,
 	metavar=("Bot-ID", "Chat-ID") )
 parser.add_argument("-s", "--signal",
-	help="send signal message from <Account> to <Number>",
+	help="send signal message from <Account> to <Group-ID>",
 	nargs=2,
-	metavar=("Account", "Number") )
+	metavar=("Account", "Group-ID") )
 args = parser.parse_args()
 
 if args.debug: args.verbose = True
@@ -202,7 +202,7 @@ for art in articles:
 					"-a", args.signal[0],
 					"--dbus-system", "send",
 					"-m", f"Neuer Preis für {a['name']}: {lpreis}€\n{lurl}",
-					args.signal[1]])
+					"-g", args.signal[1]])
 		
 				if args.debug:
 					print(p)
