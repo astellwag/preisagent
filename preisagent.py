@@ -168,7 +168,7 @@ for art in articles:
 			f.write(lshop + ':' + str(lpreis) + ":" + datetime.now().strftime("%Y-%m-%d") + "\n")
 		
 		# wenn neuer Preis < alter Preis -> Benachrichtigung
-		if lpreis < oldpreis:
+		if lpreis < oldpreis or lshop != oldshop:
 			# send email
 			if args.mail:
 				if args.debug:
