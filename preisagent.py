@@ -137,6 +137,9 @@ for art in articles:
 			elif hasattr(e, 'code'):
 				print(f"HTTP request for {url} failed: {e.code}")
 			continue
+		except HTTPError as e:
+			printf(f"HTTP error {e.code}")
+			continue
 
 		if re.search(s['matchre'], html):
 			if args.debug: print("searching for skip")
