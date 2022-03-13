@@ -139,6 +139,12 @@ for art in articles:
 			continue
 
 		if re.search(s['matchre'], html):
+			if args.debug: print("searching for skip")
+			if 'skip' in s:
+				if re.search(s['skip'], html):
+					if args.debug: print("Skipping")
+					continue
+
 			if args.debug:
 				print("match")
 				print(re.search(s['matchre'], html).group(1))
