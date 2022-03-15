@@ -13,6 +13,7 @@ from email.message import EmailMessage
 from pathlib import Path
 from base64 import b64decode
 from pydbus import SystemBus
+from time import sleep
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbose", action="store_true", help="enable verbose output")
@@ -26,6 +27,11 @@ parser.add_argument("-s", "--signal",
 	help="send signal message to <Group-ID>",
 	nargs=1,
 	metavar=("Group-ID") )
+parser.add_argument("-p", "--pause",
+	help="pause <PAUSE> seconds after each call",
+	nargs=1,
+	type=int,
+	metavar=("PAUSE") )
 args = parser.parse_args()
 
 if args.debug: args.verbose = True
@@ -222,5 +228,8 @@ for art in articles:
 		
 				if args.debug:
 					print(p)
+
+	if args.pause:
+		sleep(args.pause[0])
 
 # vim: set ts=4:
