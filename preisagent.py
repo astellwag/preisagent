@@ -131,7 +131,9 @@ for art in articles:
 
 	for sho in a['shops']:
 		s = shops[sho]
-		url = s['baseurl'] + a['shops'][sho] + s['append']
+		url = s['baseurl'] + a['shops'][sho]
+		if 'append' in s: url = url + s['append']
+		
 		if args.debug:
 			print(url)
 			print(s['matchre'])
