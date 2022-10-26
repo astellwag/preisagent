@@ -205,7 +205,7 @@ for art in articles:
 				if args.debug:
 					print("Sending Telegram Message")
 					
-				params = {"chat_id":args.telegram[1], "text":f"Neuer Preis für {a['name']}: {lpreis}€\n{lurl}"}
+				params = {"chat_id":args.telegram[1], "text":f"Neuer Preis für {a['name']}: {lpreis}€ (alt: {oldpreis}€)\n{lurl}"}
 				message = requests.post(f"https://api.telegram.org/bot{args.telegram[0]}/sendMessage", params=params)
 
 				if args.debug:
@@ -226,7 +226,7 @@ for art in articles:
 				account = signal.listAccounts()[0]
 
 				signal2 = bus.get(bus_name='org.asamk.Signal',object_path=account)
-				signal2.sendGroupMessage(f"Neuer Preis für {a['name']}: {lpreis}€\n{lurl}", [], sendgroup)
+				signal2.sendGroupMessage(f"Neuer Preis für {a['name']}: {lpreis}€ (alt: {oldpreis}€)\n{lurl}", [], sendgroup)
 		
 				if args.debug:
 					print(p)
