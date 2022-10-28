@@ -5,8 +5,8 @@ import argparse
 import requests
 import json
 import re
+import urllib.request
 from datetime import datetime
-from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 from smtplib import SMTP
 from email.message import EmailMessage
@@ -138,7 +138,14 @@ for art in articles:
 			print(url)
 			print(s['matchre'])
 		try:
-			html = urlopen(url).read().decode("UTF-8")
+			req = urllib.request.Request(
+				url,
+				data=None,
+				headers={
+					'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+				}
+			)
+			html = urllib.request.urlopen(req).read().decode("UTF-8")
 		except URLError as e:
 			if hasattr(e, 'reason'):
 				print(f"URL {url} unreachable: {e.reason}")
