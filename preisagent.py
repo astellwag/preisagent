@@ -156,6 +156,10 @@ for art in articles:
 			printf(f"HTTP error {e.code}")
 			continue
 
+		if 'match' in s:
+			matchno = int(s['match'])-1
+		else:
+			matchno = 0
 		if re.search(s['matchre'], html):
 			if args.debug: print("searching for skip")
 			if 'skip' in s:
@@ -163,10 +167,10 @@ for art in articles:
 					if args.debug: print("Skipping")
 					continue
 
+			p = re.findall(s['matchre'], html)[matchno]
 			if args.debug:
 				print("match")
-				print(re.search(s['matchre'], html).group(1))
-			p = re.search(s['matchre'], html).group(1)
+				print(p)
 			if p.find(","):
 				preis = float(p.replace(",","."))
 			else:
