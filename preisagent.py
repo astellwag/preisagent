@@ -18,7 +18,10 @@ from time import sleep
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbose", action="store_true", help="enable verbose output")
 parser.add_argument("-d", "--debug", action="store_true", help="enable detailed debug output")
-parser.add_argument("-m", "--mail", help="send email to address")
+parser.add_argument("-m", "--mail",
+	help="send email to address",
+	nargs=1,
+	metavar=("Mail-address") )
 parser.add_argument("-t", "--telegram", 
 	help="send telegram message to <Bot-ID> <Chat-ID>",
 	nargs=2,
@@ -170,6 +173,7 @@ for art in articles:
 			p = re.findall(s['matchre'], html)[matchno]
 			if args.debug:
 				print("match")
+				print(re.findall(s['matchre'], html))
 				print(p)
 			if p.find(","):
 				preis = float(p.replace(",","."))
