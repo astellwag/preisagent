@@ -179,6 +179,8 @@ for art in articles:
 				preis = float(p.replace(",","."))
 			else:
 				preis = float(p)
+			if 'tax' in s:
+				preis = round(preis * float(s['tax']), 2)
 			
 			if args.verbose:
 				print(f"Preis bei {s['name']}: {preis}€")
