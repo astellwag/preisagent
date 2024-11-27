@@ -1,24 +1,26 @@
 #!/usr/bin/python3
 
-import sys
 import argparse
-import requests
+import asyncio
 import json
 import re
+import requests
+import sys
 import urllib.request
-from datetime import datetime
-from urllib.error import URLError, HTTPError
-from smtplib import SMTP
-from email.message import EmailMessage
-from pathlib import Path
 from base64 import b64decode
+from datetime import datetime
+from email.message import EmailMessage
+from nio import AsyncClient, MatrixRoom, RoomMessageText
+from pathlib import Path
 from pydbus import SystemBus
+from smtplib import SMTP
 from time import sleep
+from urllib.error import URLError, HTTPError
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbose", action="store_true", help="enable verbose output")
 parser.add_argument("-d", "--debug", action="store_true", help="enable detailed debug output")
-parser.add_argument("-m", "--mail",
+parser.add_argument("-e", "--email",
 	help="send email to address",
 	nargs=1,
 	metavar=("Mail-address") )
@@ -26,6 +28,10 @@ parser.add_argument("-t", "--telegram",
 	help="send telegram message to <Bot-ID> <Chat-ID>",
 	nargs=2,
 	metavar=("Bot-ID", "Chat-ID") )
+parser.add_argument("-m", "--matrix", 
+	help="send matrix message to <server> <room>, use <user> and <pw> to login",
+	nargs=4,
+	metavar=("server", "room", "user", "password") )
 parser.add_argument("-s", "--signal",
 	help="send signal message to <Group-ID>",
 	nargs=1,
@@ -204,7 +210,7 @@ for art in articles:
 		# wenn neuer Preis < alter Preis -> Benachrichtigung
 		if lpreis < oldpreis or lshop != oldshop:
 			# send email
-			if args.mail:
+			if args.email:
 				if args.debug:
 					print("Sending eMail")
 				msg = EmailMessage()
@@ -217,6 +223,21 @@ for art in articles:
 				s.send_message(msg)
 				s.quit()
 	
+			# send to matrix server
+			if args.matrix:
+				if args.debug:
+					print("Sending Matrix message")
+				async def send_matrix():
+					client = AsyncClient(args.matrix[0], args.matrix[2])
+					await client.login(args.matrix[3])
+					await client.room_send(
+						room_id=args.matrix[1],
+						message_type="m.room.message",
+						content={"msgtype": "m.text", "body": f"Neuer Preis für {a['name']}: {lpreis}€ (alt: {oldpreis}€)\n{lurl}"}
+					)
+					await client.close()
+				asyncio.run(send_matrix())
+
 			# send telegram message
 			if args.telegram:
 				if args.debug:
