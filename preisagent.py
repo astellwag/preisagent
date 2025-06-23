@@ -216,8 +216,8 @@ for art in articles:
 				msg = EmailMessage()
 				msg.set_content(mailtxt % (a['name'], oldpreis, lpreis, lurl))
 				msg['Subject'] = "Neuer Preis für %s: %.2f" % (a['name'], lpreis)
-				msg['From'] = args.mail
-				msg['To'] = args.mail
+				msg['From'] = args.email
+				msg['To'] = args.email
 		
 				s = SMTP('localhost')
 				s.send_message(msg)
