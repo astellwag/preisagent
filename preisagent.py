@@ -50,8 +50,8 @@ Hi,
 
 der Preis für %s ist gefallen.
 
-Alter Preis: %d
-Neuer Preis: %d
+Alter Preis: %.2f
+Neuer Preis: %.2f
 
 Link zum Artikel: %s
 
